@@ -1,39 +1,36 @@
-name: generate animation
+name: Generate MultiSnake
 
 on:
-  # run automatically every 24 hours
   schedule:
-    - cron: "0 */24 * * *" 
-  
-  # allows to manually run the job at any time
-  workflow_dispatch:
-  
-  # run on every push on the main branch
-  push:
-    branches:
-    - main
-    
-  
+    - cron: "0 */6 * * *" # Runs every six hours
+  workflow_dispatch: # Allows manual launch
 
 jobs:
   generate:
-    permissions: 
-      contents: write
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
+    timeout-minutes: 10
+
     steps:
-      # generates a snake game from a github user (<github_user_name>) contributions graph, output a svg animation at <svg_out_path>
-      - name: generate github-contribution-grid-snake.svg
-        uses: Platane/snk/svg-only@v3
+      # Checkout repository
+      - name: 📥 Checkout the repository
+        uses: actions/checkout@v2
+
+      # Generate Snake animation
+      - name: 🐍 Generate MultiSource Snake animation
+        uses: Zqzqsb/MultiSourceSnake@v1.0
         with:
-          github_user_name: anishd26
-       
-          
-      # push the content of <build_dir> to a branch
-      # the content will be available at https://raw.githubusercontent.com/<github_user>/<repository>/<target_branch>/<file> , or as github page
-      - name: push github-contribution-grid-snake.svg to the output branch
-        uses: crazy-max/ghaction-github-pages@v3.1.0
+          GITHUB_USER: # Your GitHub username {required}
+          GITEE_USER: # Your Gitee username {required}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITEE_TOKEN: # Your Gitee API access token {required}
+          outputs: |
+            dist/github-snake.svg
+            dist/github-snake-dark.svg?palette=github-dark
+            dist/ocean.gif?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
+
+      # Push outputs
+      - name: 🚀 Push GitHub Snake animation to the output branch
+        uses: crazy-max/ghaction-github-pages@v2.5.0
         with:
           target_branch: output
           build_dir: dist
